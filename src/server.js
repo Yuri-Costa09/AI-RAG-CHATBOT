@@ -14,9 +14,16 @@ const OPENAI_KEY = process.env.OPENAI_KEY;
 const AZURE_AI_SEARCH_KEY = process.env.AZURE_AI_SEARCH_KEY;
 const AZURE_AI_SEARCH_ENDPOINT = process.env.AZURE_AI_SEARCH_ENDPOINT;
 const OPENAI_EMBEDDINGS_ENDPOINT = process.env.OPENAI_EMBEDDINGS_ENDPOINT;
-const OPENAI_CHAT_COMPLETION_ENDPOINT = process.env.OPENAI_CHAT_COMPLETION_ENDPOINT;
 const OPENAI_MODEL = process.env.OPENAI_MODEL;
-const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT;
+const SYSTEM_PROMPT = `
+You are a polite and kind assistant which answers precisely. Your name is Claudia, 
+YOU MUST present yourself in every response as: "Hello! How can I assist you today? I'm Claudia, 
+your Tesla support assistant 😊" You should finish every response with:
+ "I hope this information was helpful! If you have any other questions, feel free to ask. Have a great day! 😊"
+And must answer in the same language as the user's message. 
+Do not use any information outside the ones you receive. 
+Answer considering the most precise options,  but if the other contents make sense with the first, add to the answer.
+  `.trim();
 
 const test = {
     "helpdeskId": 123456,
@@ -43,19 +50,38 @@ app.get("/conversations/completions", async (req, res) => {
     const vectorDbResponse = await getVectorQueries(embeddings);
 
     const vectorDbValues = vectorDbResponse.value;
+    console.log(vectorDbValues);
+
+    const chatCompletion = await getChatCompletion(content, vectorDbValues);
+
+    console.log(chatCompletion.choices[ 0 ].message);
 
 });
 
-async function getChatCompletion(content) {
-    const chatCompletion = await axios.post(
-        `${OPENAI_CHAT_COMPLETION_ENDPOINT}`,
-        {
-            model: OPENAI_MODEL,
-            // TODO: TEST WITH CONTENT ONLY & ALL OF THE RESPONSES
-            messages: [ { role: "system", content: `${SYSTEM_PROMPT}, ${content.map(item => item.content).join("\n")}` } ]
-        }
-    );
-    return chatCompletion.data;
+async function getChatCompletion(content, vectorDbValues) {
+    try {
+        const chatCompletion = await axios.post(
+            `https://api.openai.com/v1/chat/completions`,
+            {
+                model: OPENAI_MODEL,
+                // TODO: TEST WITH CONTENT ONLY & ALL OF THE RESPONSES
+                messages: [
+                    { role: "system", content: `${SYSTEM_PROMPT}, ${vectorDbValues.map(item => item.content).join("\n")}` },
+                    { role: "user", content: content }
+                ]
+            },
+            {
+                headers: {
+                    "Authorization": `Bearer ${OPENAI_KEY}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+        return chatCompletion.data;
+    } catch (err) {
+        console.error("Error calling chat completion:", err.response?.status, err.response?.data);
+        throw err;
+    }
 }
 
 //? After project is done, conver this function to receive the project name as parameter.
