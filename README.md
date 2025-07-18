@@ -11,6 +11,7 @@ Este repositório contém a solução para o desafio técnico proposto pela Clou
   - [Executando com Docker](###executando-com-docker)
   - [Executando Localmente](#executando-localmente)
 - [Decisões Técnicas](#decisões-técnicas)
+- [Propostas de melhorias](#propostas-de-melhorias)
 - [Estrutura da Resposta da API](#estrutura-da-resposta-da-api)
 - [Comentários Adicionais](#comentários-adicionais)
 - [Autor](#autor)
@@ -104,6 +105,11 @@ Siga as instruções abaixo para configurar e executar o projeto em seu ambiente
         * **Limiar de Confiança:** Com base em testes, foi definido um limiar de confiança de `0.5`. Se o documento mais relevante retornado pela busca vetorial tiver uma pontuação de similaridade inferior a `0.5`, a resposta é considerada de baixa confiança.
 
         * **Lógica de Escalonamento:** Para cada resposta de baixa confiança em uma mesma sessão (`helpdeskId`), um contador é incrementado. Quando este contador atinge o limite de **2 tentativas**, a API conclui que não consegue ajudar o usuário de forma autônoma. A resposta final, então, sugere o contato com um atendente e retorna o campo `needHuman: true`.
+
+# Propostas para melhorias
+### Validator Agent
+Após pesquisas sobre modelos RAG, eu me deparei com uma feature extra interessante chamada **Validator Agent**, que após a resposta do **Agent Generativo** (aquele que gera a resposta), ele atua como um ***crítico*** da resposta deste agent. Que, com base em um conjunto de regras, libera a resposta ou não. Diminuindo **Drásticamente** as alucinações.
+
 
 ## Exemplos de requests da API
 
