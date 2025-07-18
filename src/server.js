@@ -26,7 +26,6 @@ app.post("/conversations/completions", async (req, res) => {
     const vectorDbValues = vectorQueries.value;
 
     const chatCompletion = await getChatCompletionService(content, vectorDbValues, needHuman, helpdeskId);
-    console.log(chatCompletion.choices[ 0 ].message.content);
 
     res.json({
         messages: [

@@ -15,7 +15,6 @@ export async function getChatCompletionService(content, vectorDbValues, needHuma
         }
 
         const searchScore = vectorDbValues[ 0 ][ "@search.score" ];
-        console.log(searchScore);
 
         // Get current clarifications count for this session
         const sessionKey = helpdeskId;
@@ -75,7 +74,6 @@ export async function getChatCompletionService(content, vectorDbValues, needHuma
                 }
             }
         );
-        console.log(chatCompletion);
         return {
             ...chatCompletion.data,
             needHuman: false
