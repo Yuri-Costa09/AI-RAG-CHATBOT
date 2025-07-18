@@ -107,6 +107,10 @@ Siga as instruções abaixo para configurar e executar o projeto em seu ambiente
 
 ## Exemplos de requests da API
 
+```bash
+POST http://localhost:3000/conversations/completions
+```
+
 ### **Exemplo de Request bem sucedida:**
 
 ```json
