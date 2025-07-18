@@ -15,6 +15,7 @@ const AZURE_AI_SEARCH_KEY = process.env.AZURE_AI_SEARCH_KEY;
 const AZURE_AI_SEARCH_ENDPOINT = process.env.AZURE_AI_SEARCH_ENDPOINT;
 const OPENAI_EMBEDDINGS_ENDPOINT = process.env.OPENAI_EMBEDDINGS_ENDPOINT;
 const OPENAI_MODEL = process.env.OPENAI_MODEL;
+
 const SYSTEM_PROMPT = `
 You are a polite and kind assistant which answers precisely. Your name is Claudia, 
 YOU MUST present yourself in every response as: "Hello! How can I assist you today? I'm Claudia, 
@@ -24,6 +25,9 @@ And must answer in the same language as the user's message.
 Do not use any information outside the ones you receive. 
 Answer considering the most precise options,  but if the other contents make sense with the first, add to the answer.
   `.trim();
+
+let system_prompt_formatted = SYSTEM_PROMPT.replace(/\n+/g, " ");
+
 
 const test = {
     "helpdeskId": 123456,
@@ -54,8 +58,23 @@ app.get("/conversations/completions", async (req, res) => {
 
     const chatCompletion = await getChatCompletion(content, vectorDbValues);
 
-    console.log(chatCompletion.choices[ 0 ].message);
-
+    res.json({
+        messages: [
+            {
+                role: "USER",
+                content: content
+            },
+            {
+                role: "ASSISTANT",
+                content: chatCompletion.choices[ 0 ].message.content
+            }
+        ],
+        handoverToHumanNeeded: false,
+        sectionsRetrieved: vectorDbValues.map(item => ({
+            content: item.content,
+            searchScore: item[ "@search.score" ],
+        }))
+    })
 });
 
 async function getChatCompletion(content, vectorDbValues) {
@@ -66,7 +85,7 @@ async function getChatCompletion(content, vectorDbValues) {
                 model: OPENAI_MODEL,
                 // TODO: TEST WITH CONTENT ONLY & ALL OF THE RESPONSES
                 messages: [
-                    { role: "system", content: `${SYSTEM_PROMPT}, ${vectorDbValues.map(item => item.content).join("\n")}` },
+                    { role: "system", content: `${system_prompt_formatted}, ${vectorDbValues.map(item => item.content).join("\n")}` },
                     { role: "user", content: content }
                 ]
             },
