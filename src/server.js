@@ -16,6 +16,7 @@ app.listen(3000, () => {
 // main endpoint
 app.post("/conversations/completions", async (req, res) => {
     const { messages } = req.body;
+    const { helpdeskId, projectName } = req.body;
     const content = messages[ 0 ].content;
 
     const embeddings = await getEmbeddingService(content);
@@ -24,7 +25,7 @@ app.post("/conversations/completions", async (req, res) => {
 
     const vectorDbValues = vectorQueries.value;
 
-    const chatCompletion = await getChatCompletionService(content, vectorDbValues, needHuman);
+    const chatCompletion = await getChatCompletionService(content, vectorDbValues, needHuman, helpdeskId);
     console.log(chatCompletion.choices[ 0 ].message.content);
 
     res.json({
@@ -38,7 +39,7 @@ app.post("/conversations/completions", async (req, res) => {
                 content: chatCompletion.choices[ 0 ].message.content
             }
         ],
-        handoverToHumanNeeded: needHuman,
+        handoverToHumanNeeded: chatCompletion.needHuman,
         sectionsRetrieved: vectorDbValues.map(item => ({
             content: item.content,
             searchScore: item[ "@search.score" ],

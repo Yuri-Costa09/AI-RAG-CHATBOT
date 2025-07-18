@@ -30,7 +30,7 @@ export async function getVectorQueriesService(embeddings) {
     // Verify if the user needs to be handed over to a human
     // by checking if the type is N2
     let needHuman = false;
-    if (vectorQueries.data.value.some(item => item.type === "N2")) {
+    if (vectorQueries.data.value[ 0 ].type === "N2") {
         needHuman = true;
     }
     return {
