@@ -30,7 +30,7 @@ export async function getChatCompletionService(content, vectorDbValues, needHuma
             `https://api.openai.com/v1/chat/completions`,
             {
                 model: OPENAI_MODEL,
-                max_tokens: 500,
+                max_tokens: 450,
                 messages: [
                     { role: "system", content: `${system_prompt_formatted}, ${vectorDbValues.map(item => item.content).join("\n")}` },
                     { role: "user", content: content }
