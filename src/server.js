@@ -21,7 +21,7 @@ app.post("/conversations/completions", async (req, res) => {
 
     const embeddings = await getEmbeddingService(content);
 
-    const { vectorQueries, needHuman } = await getVectorQueriesService(embeddings);
+    const { vectorQueries, needHuman } = await getVectorQueriesService(embeddings, projectName);
 
     const vectorDbValues = vectorQueries.value;
 

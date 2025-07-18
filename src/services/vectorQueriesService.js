@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function getVectorQueriesService(embeddings) {
+export async function getVectorQueriesService(embeddings, projectName) {
     const AZURE_AI_SEARCH_KEY = process.env.AZURE_AI_SEARCH_KEY;
     const AZURE_AI_SEARCH_ENDPOINT = process.env.AZURE_AI_SEARCH_ENDPOINT;
 
@@ -10,7 +10,7 @@ export async function getVectorQueriesService(embeddings) {
             count: true,
             select: "content, type",
             top: 10,
-            filter: "projectName eq 'tesla_motors'",
+            filter: `projectName eq '${projectName}'`,
             vectorQueries: [
                 {
                     vector: embeddings,
