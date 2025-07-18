@@ -17,14 +17,7 @@ const OPENAI_EMBEDDINGS_ENDPOINT = process.env.OPENAI_EMBEDDINGS_ENDPOINT;
 const OPENAI_MODEL = process.env.OPENAI_MODEL;
 
 const SYSTEM_PROMPT = `
-You are a polite and kind assistant which answers precisely. Your name is Claudia, 
-YOU MUST present yourself in every response as: "Hello! How can I assist you today? I'm Claudia, 
-your Tesla support assistant 😊" You should finish every response with:
- "I hope this information was helpful! If you have any other questions, feel free to ask. Have a great day! 😊"
-And must answer in the same language as the user's message. 
-Do not use any information outside the ones you receive. 
-Answer considering the most precise options,  but if the other contents make sense with the first, add to the answer.
-  `.trim();
+You are a polite and kind assistant which answers precisely. Your name is Claudia, YOU MUST present yourself in every response as: "Hello! How can I assist you today? I'm Claudia, your Tesla support assistant 😊" You should finish every response with: "I hope this information was helpful! If you have any other questions, feel free to ask. Have a great day! 😊"And must answer in the same language as the user's message. Do not use any information outside the ones you receive. Answer considering the most precise options,  but if the other contents make sense with the first, add to the answer.`.trim();
 
 let system_prompt_formatted = SYSTEM_PROMPT.replace(/\n+/g, " ");
 
@@ -35,7 +28,7 @@ const test = {
     "messages": [
         {
             "role": "USER",
-            "content": "Hello! How long does a Tesla battery last before it needs to be replaced?"
+            "content": "Can I buy a bread?"
         }
     ]
 }
@@ -51,12 +44,12 @@ app.get("/conversations/completions", async (req, res) => {
 
     const embeddings = await getEmbedding(content);
 
-    const vectorDbResponse = await getVectorQueries(embeddings);
+    const { vectorQueries, needHuman } = await getVectorQueries(embeddings);
 
-    const vectorDbValues = vectorDbResponse.value;
+    const vectorDbValues = vectorQueries.value;
     console.log(vectorDbValues);
 
-    const chatCompletion = await getChatCompletion(content, vectorDbValues);
+    const chatCompletion = await getChatCompletion(content, vectorDbValues, needHuman);
 
     res.json({
         messages: [
@@ -69,7 +62,7 @@ app.get("/conversations/completions", async (req, res) => {
                 content: chatCompletion.choices[ 0 ].message.content
             }
         ],
-        handoverToHumanNeeded: false,
+        handoverToHumanNeeded: needHuman,
         sectionsRetrieved: vectorDbValues.map(item => ({
             content: item.content,
             searchScore: item[ "@search.score" ],
@@ -77,13 +70,22 @@ app.get("/conversations/completions", async (req, res) => {
     })
 });
 
-async function getChatCompletion(content, vectorDbValues) {
+async function getChatCompletion(content, vectorDbValues, needHuman) {
     try {
+        if (needHuman) {
+            return {
+                choices: [
+                    { message: { content: "That’s an important question! I’m passing this over to a specialized team member who’ll get back to you as soon as possible. Feel free to relax, and we’ll be right with you." } }
+                ]
+            }
+        }
+
         const chatCompletion = await axios.post(
             `https://api.openai.com/v1/chat/completions`,
             {
                 model: OPENAI_MODEL,
-                // TODO: TEST WITH CONTENT ONLY & ALL OF THE RESPONSES
+                max_tokens: 500,
+                stream: true,
                 messages: [
                     { role: "system", content: `${system_prompt_formatted}, ${vectorDbValues.map(item => item.content).join("\n")}` },
                     { role: "user", content: content }
@@ -128,17 +130,26 @@ async function getVectorQueries(embeddings) {
             },
         }
     );
-    return vectorQueries.data;
+    // Verify if the user needs to be handed over to a human
+    // by checking if the type is N2
+    let needHuman = false;
+    if (vectorQueries.data.value.some(item => item.type === "N2")) {
+        needHuman = true;
+    }
+    return {
+        vectorQueries: vectorQueries.data,
+        needHuman: needHuman
+    };
 }
 
 //? After project is done, convert this function to receive the content as a parameter.
-async function getEmbedding() {
+async function getEmbedding(content) {
     try {
         const response = await axios.post(
-            `${OPENAI_EMBEDDINGS_ENDPOINT}`,
+            OPENAI_EMBEDDINGS_ENDPOINT,
             {
                 model: "text-embedding-3-large",
-                input: "How long does a Tesla battery last before it needs to be replaced?"
+                input: content
             },
             {
                 headers: {
