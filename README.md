@@ -47,6 +47,7 @@ Siga as instruções abaixo para configurar e executar o projeto em seu ambiente
 * [Git](https://git-scm.com)
 * [Docker](https://www.docker.com/get-started/) e [Docker Compose](https://docs.docker.com/compose/install/)
 * [Node.js](https://nodejs.org/en/) (para execução local)
+* Configurar seu .ENV
 
 ### Executando com Docker (Recomendado)
 
@@ -55,13 +56,16 @@ Siga as instruções abaixo para configurar e executar o projeto em seu ambiente
     git clone https://github.com/Yuri-Costa09/cloud-humans-code-challenge
     cd cloud-humans-code-challenge
     ```
-
-2.  **Construa e inicie os contêineres:**
+2. **Setar variáveis de ambiente**
+  ```bash
+    No projeto já há um env.example ao clonar, apenas preencha as Keys necessárias.
+  ```
+3.  **Construa e inicie os contêineres:**
     ```bash
     docker-compose up --build
     ```
 
-3.  A API estará disponível no endereço: `http://localhost:3000`
+4.  A API estará disponível no endereço: `http://localhost:3000`
 
 ### Executando Localmente
 
