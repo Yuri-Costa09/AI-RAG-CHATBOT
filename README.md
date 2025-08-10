@@ -1,6 +1,6 @@
-# Code Challenge - CloudHumans
+# Chatbot com RAG
 
-Este repositório contém a solução para o desafio técnico proposto pela CloudHumans, que consiste na criação de uma API de chatbot utilizando a técnica de RAG (Retrieval Augmented Generation).
+Este repositório contém o projeto CHATBOT COM RAG, que consiste na criação de uma API de chatbot utilizando a técnica de RAG (Retrieval Augmented Generation).
 
 ## Índice
 
@@ -24,7 +24,7 @@ A solução foi projetada de forma modular para permitir a fácil integração c
 
 ### Funcionalidade Implementada
 
-Para este desafio, optei por implementar as **duas features extras propostas**. Por achar interessante as propostas, e aproveitar para servir como estudos.
+Para este projeto, optei por implementar mais **duas features extras propostas**. Para estudos.
 
 * **Esclarecimento**: A IA tentará pedir mais detalhes ao usuário até duas vezes se a pergunta for ambígua. Na terceira tentativa, a conversa será escalada para um atendente humano.
 * **Encaminhamento**: Sempre que uma pergunta estiver relacionada a um conteúdo classificado como **N2**, a API indicará a necessidade de intervenção humana retornando o campo `handoverToHumanNeeded: true`.
@@ -35,7 +35,7 @@ Para o desenvolvimento da solução, as seguintes tecnologias e bibliotecas fora
 
 * **Linguagem:** Javascript / Node.js v18
 * **Framework:** Express.js
-* **Vector Database:** O disponibilizado para o code-challenge.
+* **Vector Database:** Azure Cosmos DB.
 * **Containerização:** Docker
 * **Principais Bibliotecas:** Axios (para fetching das APIs)
 ## Como Executar a Aplicação
